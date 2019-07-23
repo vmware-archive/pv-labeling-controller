@@ -1,0 +1,35 @@
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pv-labeling-controller-sa
+  namespace: #@ data.values.namespace
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pv-labeling-controller-cluster-role
+rules:
+#! Needed to update labels on PVs
+- apiGroups: [""]
+  resources: ["persistentvolumes"]
+  verbs: ["list", "get", "update"]
+#! Needed to fetch labels from PVCs
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pv-labeling-controller-cluster-role-binding
+subjects:
+- kind: ServiceAccount
+  name: pv-labeling-controller-sa
+  namespace: #@ data.values.namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pv-labeling-controller-cluster-role

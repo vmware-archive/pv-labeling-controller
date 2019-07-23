@@ -1,0 +1,26 @@
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pv-labeling-controller
+  namespace: #@ data.values.namespace
+spec:
+  selector:
+    matchLabels:
+      app: pv-labeling-controller
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pv-labeling-controller
+    spec:
+      serviceAccount: pv-labeling-controller-sa
+      containers:
+      - name: master
+        image: controller
+        resources:
+          requests:
+            cpu: 120m
+            memory: 100Mi

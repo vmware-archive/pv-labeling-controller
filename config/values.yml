@@ -1,0 +1,5 @@
+#@data/values
+---
+namespace: default
+push_images: true
+image_repo: docker.io/dkalinin/pv-labeling-controller
