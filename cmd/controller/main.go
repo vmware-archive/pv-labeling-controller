@@ -3,7 +3,9 @@ package main
 // Based on https://github.com/kubernetes-sigs/controller-runtime/blob/8f633b179e1c704a6e40440b528252f147a3362a/examples/builtins/main.go
 
 import (
+	"flag"
 	"os"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -21,6 +23,12 @@ import (
 var log = logf.Log.WithName("pv-labeling-controller")
 
 func main() {
+	labelKeysToSyncStr := ""
+
+	flag.StringVar(&labelKeysToSyncStr, "label-keys-to-sync", "kapp.k14s.io/app,kapp.k14s.io/association",
+		"Comma separated list of label keys for the controller to sync between PVC and PV")
+	flag.Parse()
+
 	logf.SetLogger(zap.Logger(false))
 	entryLog := log.WithName("entrypoint")
 
@@ -45,7 +53,7 @@ func main() {
 	reconciler := &reconcilePersistentVolume{
 		client:          mgr.GetClient(),
 		coreClient:      coreClient,
-		labelKeysToSync: []string{"kapp.k14s.io/app", "kapp.k14s.io/association"},
+		labelKeysToSync: strings.Split(labelKeysToSyncStr, ","),
 		log:             log.WithName("reconciler"),
 	}
 
